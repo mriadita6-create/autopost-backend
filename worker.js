@@ -71,12 +71,95 @@ function validEmail(email) {
   return typeof email === "string" && email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function base64urlText(s) {
+  return b64url(utf8(s));
+}
+async function encryptToken(token, secret) {
+  const keyBytes = await crypto.subtle.digest("SHA-256", utf8(secret));
+  const key = await crypto.subtle.importKey("raw", keyBytes, { name: "AES-GCM" }, false, ["encrypt"]);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, utf8(token));
+  return `${b64url(iv)}.${b64url(new Uint8Array(ciphertext))}`;
+}
+function htmlPage(title, message, status = 200) {
+  return new Response(`<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><body style="font-family:system-ui;max-width:640px;margin:48px auto;padding:20px"><h2>${title}</h2><p>${message}</p><p>Kamu boleh menutup halaman ini dan kembali ke AutoPost.</p></body></html>`, {
+    status,
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" }
+  });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
     const url = new URL(request.url);
     if (!env.DB) return json({ error: "D1 binding DB belum diatur." }, 500);
     if (!env.JWT_SECRET) return json({ error: "Secret JWT_SECRET belum diatur." }, 500);
+
+
+    // Begin Facebook OAuth for an already logged-in AutoPost user.
+    if (request.method === "POST" && url.pathname === "/api/facebook/connect") {
+      const payload = await verifyToken(getBearer(request) || "", env.JWT_SECRET);
+      if (!payload) return json({ error: "Silakan login ke AutoPost terlebih dahulu." }, 401);
+      if (!env.META_APP_ID || !env.META_APP_SECRET || !env.TOKEN_ENCRYPTION_KEY) {
+        return json({ error: "Secret META_APP_ID, META_APP_SECRET, atau TOKEN_ENCRYPTION_KEY belum diatur." }, 500);
+      }
+      const state = randomHex(32);
+      const expiresAt = Math.floor(Date.now() / 1000) + 600;
+      await env.DB.prepare("INSERT INTO oauth_states (state, user_id, expires_at) VALUES (?, ?, ?)")
+        .bind(state, payload.sub, expiresAt).run();
+      const redirectUri = `${url.origin}/auth/facebook/callback`;
+      const authUrl = new URL("https://www.facebook.com/v23.0/dialog/oauth");
+      authUrl.searchParams.set("client_id", env.META_APP_ID);
+      authUrl.searchParams.set("redirect_uri", redirectUri);
+      authUrl.searchParams.set("state", state);
+      authUrl.searchParams.set("response_type", "code");
+      authUrl.searchParams.set("scope", "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish");
+      return json({ ok: true, authUrl: authUrl.toString(), redirectUri });
+    }
+
+    // Facebook redirects the browser here after consent.
+    if (request.method === "GET" && url.pathname === "/auth/facebook/callback") {
+      const code = url.searchParams.get("code");
+      const state = url.searchParams.get("state");
+      const oauthError = url.searchParams.get("error_description") || url.searchParams.get("error");
+      if (oauthError) return htmlPage("Login Facebook dibatalkan", "Izin Facebook tidak diberikan. Kembali ke AutoPost dan coba lagi.", 400);
+      if (!code || !state) return htmlPage("Login Facebook gagal", "Parameter code atau state tidak ditemukan. Mulai koneksi dari AutoPost lagi.", 400);
+      if (!env.META_APP_ID || !env.META_APP_SECRET || !env.TOKEN_ENCRYPTION_KEY) {
+        return htmlPage("Konfigurasi belum lengkap", "Admin perlu mengatur META_APP_ID, META_APP_SECRET, dan TOKEN_ENCRYPTION_KEY di Cloudflare.", 500);
+      }
+      const savedState = await env.DB.prepare("SELECT state, user_id, expires_at FROM oauth_states WHERE state = ?").bind(state).first();
+      if (!savedState || savedState.expires_at < Math.floor(Date.now() / 1000)) {
+        if (savedState) await env.DB.prepare("DELETE FROM oauth_states WHERE state = ?").bind(state).run();
+        return htmlPage("Login Facebook kedaluwarsa", "State login tidak valid atau sudah kedaluwarsa. Kembali ke AutoPost dan mulai lagi.", 400);
+      }
+      await env.DB.prepare("DELETE FROM oauth_states WHERE state = ?").bind(state).run();
+
+      const redirectUri = `${url.origin}/auth/facebook/callback`;
+      const tokenUrl = new URL("https://graph.facebook.com/v23.0/oauth/access_token");
+      tokenUrl.searchParams.set("client_id", env.META_APP_ID);
+      tokenUrl.searchParams.set("client_secret", env.META_APP_SECRET);
+      tokenUrl.searchParams.set("redirect_uri", redirectUri);
+      tokenUrl.searchParams.set("code", code);
+      const tokenResponse = await fetch(tokenUrl.toString());
+      const tokenData = await tokenResponse.json();
+      if (!tokenResponse.ok || !tokenData.access_token) {
+        return htmlPage("Login Facebook gagal", "Facebook tidak mengembalikan access token. Periksa App ID, App Secret, dan Redirect URI di Meta.", 502);
+      }
+
+      const profileResponse = await fetch("https://graph.facebook.com/v23.0/me?fields=id,name&access_token=" + encodeURIComponent(tokenData.access_token));
+      const profile = await profileResponse.json();
+      if (!profileResponse.ok || !profile.id) {
+        return htmlPage("Login Facebook gagal", "Token diterima tetapi profil Facebook tidak dapat dibaca.", 502);
+      }
+
+      const encryptedToken = await encryptToken(tokenData.access_token, env.TOKEN_ENCRYPTION_KEY);
+      const tokenExpiresAt = tokenData.expires_in ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString() : null;
+      await env.DB.prepare(
+        "INSERT INTO social_accounts (user_id, platform, platform_user_id, access_token, token_expires_at) VALUES (?, 'facebook', ?, ?, ?) ON CONFLICT(user_id, platform, platform_user_id) DO UPDATE SET access_token = excluded.access_token, token_expires_at = excluded.token_expires_at"
+      ).bind(savedState.user_id, profile.id, encryptedToken, tokenExpiresAt).run();
+
+      return htmlPage("Facebook berhasil terhubung", `Akun Facebook (${String(profile.name || "pengguna").replace(/[&<>"]/g, "")}) sudah terhubung ke AutoPost. Token disimpan terenkripsi. Ini belum berarti posting otomatis sudah aktif; izin aplikasi dan pemilihan Halaman/Instagram masih perlu diselesaikan.`);
+    }
 
     if (request.method === "GET" && url.pathname === "/") {
       return json({ name: "AutoPost API", status: "online", version: 1 });
