@@ -1,0 +1,8 @@
+name = "autopost-backend"
+main = "worker.js"
+compatibility_date = "2026-10-11"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "autopost-db"
+database_id = "00354307-8710-4d61-9380-21bc22bddd9f"
