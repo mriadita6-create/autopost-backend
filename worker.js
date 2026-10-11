@@ -37,7 +37,7 @@ async function sha256Hex(s) {
 async function derivePassword(password, saltHex) {
   const salt = Uint8Array.from(saltHex.match(/.{2}/g), b => parseInt(b, 16));
   const key = await crypto.subtle.importKey("raw", utf8(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 210000, hash: "SHA-256" }, key, 256);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, key, 256);
   return [...new Uint8Array(bits)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 function randomHex(n = 16) {
