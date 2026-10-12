@@ -149,7 +149,7 @@ export default {
       auth.searchParams.set("redirect_uri", redirectUri);
       auth.searchParams.set("state", state);
       auth.searchParams.set("response_type", "code");
-      auth.searchParams.set("scope", "public_profile,email");
+      auth.searchParams.set("scope", "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts");
       return json({ ok: true, authUrl: auth.toString(), expiresIn: 600 });
     }
 
