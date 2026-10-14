@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AutoPost membantu mengelola media sosial dengan lebih praktis.">
+  <title>AutoPost — Kelola Media Sosial Lebih Mudah</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #080b16;
+      --panel: #111629;
+      --primary: #8065ff;
+      --secondary: #b7a7ff;
+      --text: #f8f9ff;
+      --muted: #a6adc6;
+      --border: rgba(255,255,255,.1);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1100px, 90%);
+      margin: auto;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -.8px;
+    }
+
+    .logo span {
+      color: var(--primary);
+    }
+
+    .nav-login {
+      border: 1px solid var(--border);
+      padding: 9px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .hero {
+      padding: 90px 0 75px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 0%, #292052 0%, transparent 65%);
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid #5944a0;
+      background: rgba(128,101,255,.12);
+      color: #d0c5ff;
+      padding: 7px 15px;
+      border-radius: 30px;
+      font-size: 12px;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: clamp(38px, 6vw, 66px);
+      line-height: 1.13;
+      letter-spacing: -2px;
+      max-width: 850px;
+      margin: auto;
+    }
+
+    h1 span {
+      color: var(--secondary);
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 25px auto;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .button {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 14px 25px;
+      border-radius: 11px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: #6e51ed;
+    }
+
+    .hero-note {
+      color: #8189a5;
+      font-size: 12px;
+      margin-top: 15px;
+    }
+
+    .preview {
+      margin: 55px auto 0;
+      max-width: 850px;
+      background: linear-gradient(145deg, #171d34, #0e1222);
+      border: 1px solid #333854;
+      border-radius: 18px;
+      padding: 25px;
+      text-align: left;
+      box-shadow: 0 25px 90px rgba(0,0,0,.3);
+    }
+
+    .preview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .status {
+      color: #9be9bb;
+      font-size: 12px;
+    }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .social-card {
+      padding: 20px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .social-icon {
+      font-size: 25px;
+      margin-bottom: 10px;
+    }
+
+    .social-card strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .social-card small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    section {
+      padding: 80px 0;
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 45px;
+    }
+
+    .section-heading h2 {
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.25;
+      margin-bottom: 14px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature {
+      padding: 27px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+    }
+
+    .feature .icon {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    .feature h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .step {
+      text-align: center;
+      padding: 25px;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 17px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: #201943;
+      color: #c9bdff;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .pricing {
+      background: linear-gradient(180deg, #0b0e1c, #101328);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .price-card {
+      background: #12172a;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-card.popular {
+      border: 1px solid var(--primary);
+      background: linear-gradient(160deg, #211b42, #12172a 70%);
+    }
+
+    .plan-label {
+      color: var(--secondary);
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .price {
+      font-size: 35px;
+      font-weight: 800;
+      margin: 12px 0 3px;
+      letter-spacing: -1px;
+    }
+
+    .duration {
+      color: var(--muted);
+      font-size: 13px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-card ul {
+      list-style: none;
+      padding: 20px 0;
+      flex: 1;
+    }
+
+    .price-card li {
+      font-size: 14px;
+      margin: 10px 0;
+      color: #d8dcef;
+    }
+
+    .price-card li::before {
+      content: "✓ ";
+      color: #a99aff;
+      font-weight: bold;
+    }
+
+    .price-card .button {
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .price-card .button.outline {
+      background: transparent;
+      border: 1px solid #4b5170;
+    }
+
+    .notice {
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      margin-top: 25px;
+    }
+
+    .faq-list {
+      max-width: 750px;
+      margin: auto;
+    }
+
+    details {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    details p {
+      color: var(--muted);
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .final-cta {
+      text-align: center;
+      padding: 65px 25px;
+      background: radial-gradient(ellipse at center, #25204b, transparent 75%);
+    }
+
+    .final-cta h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .final-cta p {
+      color: var(--muted);
+      margin: 15px auto 25px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 0;
+      color: #8189a5;
+      font-size: 12px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 750px) {
+      .hero {
+        padding-top: 65px;
+      }
+
+      .features,
+      .steps,
+      .price-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .social-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview {
+        padding: 17px;
+      }
+
+      section {
+        padding: 60px 0;
+      }
+
+      h1 {
+        letter-spacing: -1px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="container">
+    <nav>
+      <a class="logo" href="#">Auto<span>Post</span></a>
+      <a class="nav-login" href="#harga">Lihat Paket</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="container">
+
+        <div class="badge">✦ SOLUSI MANAJEMEN MEDIA SOSIAL</div>
+
+        <h1>
+          Kelola Media Sosial<br>
+          <span>Lebih Praktis dengan AutoPost.</span>
+        </h1>
+
+        <p>
+          Siapkan strategi kontenmu dengan lebih teratur.
+          Kelola aktivitas media sosial dari satu tempat dan
+          hemat waktu untuk fokus mengembangkan bisnismu.
+        </p>
+
+        <a class="button" href="#fitur">Kenali AutoPost ↓</a>
+
+        <div class="hero-note">
+          Hubungkan akun yang didukung dan kelola konten sesuai kebutuhanmu.
+        </div>
+
+        <div class="preview">
+
+          <div class="preview-top">
+            <strong>Dashboard AutoPost</strong>
+            <span class="status">● Tampilan pratinjau</span>
+          </div>
+
+          <div class="social-grid">
+
+            <div class="social-card">
+              <div class="social-icon">📘</div>
+              <strong>Facebook</strong>
+              <small>Kelola konten Page</small>
+            </div>
+
+            <div class="social-card">
+              <div class="social-icon">📸</div>
+              <strong>Instagram</strong>
+              <small>Konten akun profesional</small>
+            </div>
+
+            <div class="social-card">
+              <div class="social-icon">🗓️</div>
+              <strong>Perencanaan</strong>
+              <small>Atur jadwal konten</small>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="fitur">
+      <div class="container">
+
+        <div class="section-heading">
+          <h2>Lebih Teratur, Lebih Fokus</h2>
+          <p>
+            Bantu sederhanakan pengelolaan konten agar waktumu
+            bisa digunakan untuk hal yang lebih penting.
+          </p>
+        </div>
+
+        <div class="features">
+
+          <article class="feature">
+            <div class="icon">📱</div>
+            <h3>Kelola dari Satu Tempat</h3>
+            <p>
+              Siapkan pengalaman pengelolaan media sosial yang
+              lebih praktis tanpa harus berpindah-pindah halaman.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="icon">🗓️</div>
+            <h3>Rencanakan Konten</h3>
+            <p>
+              Susun ide dan rencana publikasi agar aktivitas
+              konten bisnis lebih terorganisasi.
+            </p>
+          </article>
+
+          <article class="feature">
+            <div class="icon">⚡</div>
+            <h3>Hemat Waktu</h3>
+            <p>
+              Kurangi pekerjaan berulang dan fokus pada
+              pengembangan bisnis serta kreativitas.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+
+        <div class="section-heading">
+          <h2>Mulai dalam 3 Langkah</h2>
+          <p>Alur sederhana untuk memulai menggunakan AutoPost.</p>
+        </div>
+
+        <div class="steps">
+
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Pilih Paket</h3>
+            <p>Pilih masa berlangganan yang sesuai kebutuhanmu.</p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Buat Akun</h3>
+            <p>Daftar dan siapkan akun AutoPost milikmu.</p>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>Mulai Mengelola</h3>
+            <p>Hubungkan akun sosial yang didukung setelah fitur tersedia.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing" id="harga">
+      <div class="container">
+
+        <div class="section-heading">
+          <h2>Pilih Paket AutoPost</h2>
+          <p>
+            Harga terjangkau untuk membantu aktivitas media sosialmu.
+            Pilih durasi yang sesuai kebutuhan.
+          </p>
+        </div>
+
+        <div class="price-grid">
+
+          <article class="price-card">
+            <div class="plan-label">Starter</div>
+            <div class="price">Rp5.000</div>
+            <div class="duration">Masa aktif 7 hari</div>
+
+            <ul>
+              <li>Akses akun AutoPost</li>
+              <li>Durasi singkat untuk mencoba</li>
+              <li>Dukungan fitur sesuai ketersediaan</li>
+            </ul>
+
+            <a class="button outline" href="#cara-berlangganan">
+              Pilih Starter
+            </a>
+          </article>
+
+          <article class="price-card popular">
+            <div class="plan-label">Pro · Pilihan Durasi</div>
+            <div class="price">Rp15.000</div>
+            <div class="duration">Masa aktif 30 hari</div>
+
+            <ul>
+              <li>Akses akun AutoPost</li>
+              <li>Durasi satu bulan</li>
+              <li>Dukungan fitur sesuai ketersediaan</li>
+            </ul>
+
+            <a class="button" href="#cara-berlangganan">
+              Pilih Pro
+            </a>
+          </article>
+
+          <article class="price-card">
+            <div class="plan-label">Premium</div>
+            <div class="price">Rp35.000</div>
+            <div class="duration">Masa aktif 90 hari</div>
+
+            <ul>
+              <li>Akses akun AutoPost</li>
+              <li>Durasi tiga bulan</li>
+              <li>Dukungan fitur sesuai ketersediaan</li>
+            </ul>
+
+            <a class="button outline" href="#cara-berlangganan">
+              Pilih Premium
+            </a>
+          </article>
+
+        </div>
+
+        <p class="notice">
+          Harga dan fitur ditampilkan sebagai penawaran awal.
+          Pembayaran dan aktivasi otomatis belum terhubung.
+        </p>
+
+      </div>
+    </section>
+
+    <section id="cara-berlangganan">
+      <div class="container">
+
+        <div class="section-heading">
+          <h2>Pertanyaan Umum</h2>
+          <p>Informasi awal sebelum berlangganan.</p>
+        </div>
+
+        <div class="faq-list">
+
+          <details>
+            <summary>Apa itu AutoPost?</summary>
+            <p>
+              AutoPost dirancang untuk membantu pengelolaan
+              aktivitas media sosial melalui satu layanan.
+              Fitur yang tersedia bergantung pada tahap pengembangan.
+            </p>
+          </details>
+
+          <details>
+            <summary>Apakah pembayaran sudah otomatis?</summary>
+            <p>
+              Belum. Sistem pembayaran perlu diintegrasikan dan
+              diuji sebelum pelanggan dapat membeli paket secara otomatis.
+            </p>
+          </details>
+
+          <details>
+            <summary>Apakah semua akun media sosial bisa dihubungkan?</summary>
+            <p>
+              Koneksi bergantung pada dukungan platform, jenis akun,
+              izin aplikasi, dan persetujuan yang diperlukan.
+            </p>
+          </details>
+
+          <details>
+            <summary>Bagaimana cara mulai berlangganan?</summary>
+            <p>
+              Untuk saat ini, halaman paket merupakan tampilan awal.
+              Alur pemilihan paket, pembayaran, dan aktivasi perlu
+              diselesaikan sebelum layanan menerima transaksi.
+            </p>
+          </details>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container">
+        <h2>Saatnya Kelola Konten Lebih Teratur.</h2>
+        <p>
+          Kenali AutoPost dan temukan paket yang sesuai kebutuhanmu.
+        </p>
+        <a class="button" href="#harga">Lihat Harga Paket</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>© 2026 AutoPost. All rights reserved.</div>
+      <div>
+        <a href="privacy.html">Kebijakan Privasi</a>
+        &nbsp; · &nbsp;
+        <a href="data-deletion.html">Penghapusan Data</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
