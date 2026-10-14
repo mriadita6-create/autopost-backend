@@ -229,6 +229,7 @@ const PLANS = {
     amount: 35000,
     days: 90
   }
+};
   export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
@@ -469,7 +470,6 @@ const PLANS = {
         }, 500);
       }
     }
-};
     // ===== FACEBOOK OAUTH: MULAI KONEKSI =====
     if (
       request.method === "POST" &&
