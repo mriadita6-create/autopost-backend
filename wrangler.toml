@@ -9,3 +9,5 @@ database_id = "00354307-8710-4d61-9380-21bc22bddd9f"
 [[previews.d1_databases]]
 binding = "DB"
 database_id = "00354307-8710-4d61-9380-21bc22bddd9f"
+[vars]
+META_APP_ID = "2276936342872929"
